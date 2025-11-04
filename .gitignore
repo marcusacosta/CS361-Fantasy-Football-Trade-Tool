@@ -45,4 +45,5 @@ Thumbs.db
 # Project specific
 config.ini
 *.log
+VIDEO_SCRIPT.md
 

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Football Trade Analyzer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">🏈 Fantasy Football Trade Analyzer</h1>
+            <div class="nav-links">
+                <button class="nav-link" onclick="showScreen('input')">Trade Input</button>
+                <button class="nav-link" onclick="showScreen('results')" id="results-nav" style="display:none;">Results</button>
+                <button class="nav-link" onclick="showScreen('help')">Help</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Screen 1: Trade Input -->
+    <div class="screen active" id="input-screen">
+        <div class="container">
+            <h2 class="screen-title">Trade Input</h2>
+            
+            <!-- Mode Selector -->
+            <div class="mode-selector">
+                <button class="mode-button active" onclick="switchMode('manual')" id="manual-btn">Manual Mode</button>
+                <button class="mode-button" onclick="switchMode('assisted')" id="assisted-btn">Assisted Mode</button>
+            </div>
+            
+            <!-- Manual Mode -->
+            <div class="mode-content active" id="manual-mode">
+                <div class="input-section">
+                    <label class="input-label">Your Team Players:</label>
+                    <div class="input-box team-a-box" contenteditable="true" id="team-a-input" 
+                         placeholder="Enter player names here (e.g., Patrick Mahomes, Justin Jefferson)">
+                        <div class="helmet-icon">🏈</div>
+                    </div>
+                </div>
+                
+                <div class="input-section">
+                    <label class="input-label">Trade Partner's Players:</label>
+                    <div class="input-box team-b-box" contenteditable="true" id="team-b-input" 
+                         placeholder="Enter player names here (e.g., Josh Allen, Ja'Marr Chase)">
+                        <div class="helmet-icon">🏈</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Assisted Mode -->
+            <div class="mode-content" id="assisted-mode">
+                <div class="assisted-section">
+                    <label class="input-label">What position are you offering?</label>
+                    <div class="position-cards">
+                        <div class="position-card" onclick="selectPosition('offering', 'QB')">
+                            <h4>🏈 Quarterback</h4>
+                            <p>QB</p>
+                        </div>
+                        <div class="position-card" onclick="selectPosition('offering', 'RB')">
+                            <h4>🏃 Running Back</h4>
+                            <p>RB</p>
+                        </div>
+                        <div class="position-card" onclick="selectPosition('offering', 'WR')">
+                            <h4>🎯 Wide Receiver</h4>
+                            <p>WR</p>
+                        </div>
+                        <div class="position-card" onclick="selectPosition('offering', 'TE')">
+                            <h4>🤾 Tight End</h4>
+                            <p>TE</p>
+                        </div>
+                    </div>
+                    <div id="offering-selected" class="selected-display"></div>
+                </div>
+                
+                <div class="assisted-section">
+                    <label class="input-label">What position are you looking for?</label>
+                    <div class="position-cards">
+                        <div class="position-card" onclick="selectPosition('seeking', 'QB')">
+                            <h4>🏈 Quarterback</h4>
+                            <p>QB</p>
+                        </div>
+                        <div class="position-card" onclick="selectPosition('seeking', 'RB')">
+                            <h4>🏃 Running Back</h4>
+                            <p>RB</p>
+                        </div>
+                        <div class="position-card" onclick="selectPosition('seeking', 'WR')">
+                            <h4>🎯 Wide Receiver</h4>
+                            <p>WR</p>
+                        </div>
+                        <div class="position-card" onclick="selectPosition('seeking', 'TE')">
+                            <h4>🤾 Tight End</h4>
+                            <p>TE</p>
+                        </div>
+                    </div>
+                    <div id="seeking-selected" class="selected-display"></div>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button class="button primary" onclick="calculateTrade()" title="Analyze player values to determine trade fairness and get recommendations">
+                    ⚡ Calculate Trade
+                </button>
+                <button class="button reset" onclick="resetTrade()" title="⚠️ Warning: This will erase all text boxes and won't save your data">
+                    🔄 Reset
+                </button>
+            </div>
+            
+            <div class="help-text">
+                <strong>Tip:</strong> Choose Manual Mode for direct input (best if you know exact player names), or Assisted Mode for guided selection (great for beginners). You can paste player names from your clipboard. The Calculate button will analyze trade fairness and show which team is stronger.
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 2: Results -->
+    <div class="screen" id="results-screen">
+        <div class="container">
+            <h2 class="screen-title">Trade Analysis Results</h2>
+            
+            <div class="result-box">
+                <div class="result-label">Fairness Score:</div>
+                <div class="score" id="fairness-score">--</div>
+                
+                <div class="result-label">Trade Analysis:</div>
+                <div class="explanation" id="trade-analysis">
+                    <strong id="favored-team">--</strong><br>
+                    <span id="analysis-text">--</span>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button class="button primary" onclick="showScreen('input')">Analyze New Trade</button>
+                <button class="button reset" onclick="resetTrade()">Reset</button>
+            </div>
+            
+            <div class="help-text">
+                Score shows point difference. Positive = Your team stronger, Negative = Trade partner stronger
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 3: Help/FAQ -->
+    <div class="screen" id="help-screen">
+        <div class="container">
+            <h2 class="screen-title">Frequently Asked Questions</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    How is the fairness score calculated?
+                </div>
+                <div class="faq-answer">
+                    Our algorithm compares player values using current season stats, positional rankings, and recent performance trends. The score shows the point difference between the two teams.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    What accessibility features are available?
+                </div>
+                <div class="faq-answer">
+                    • High contrast mode available<br>
+                    • Keyboard navigation supported<br>
+                    • Screen reader compatible<br>
+                    • Large touch targets for mobile devices
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    How do I enter player names?
+                </div>
+                <div class="faq-answer">
+                    Use full player names for best results. You can also include position abbreviations if needed (e.g., "Patrick Mahomes QB"). Simply type or paste names into the input boxes in Manual Mode, or use the position cards in Assisted Mode.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    What does the Reset button do?
+                </div>
+                <div class="faq-answer">
+                    The Reset button clears all entered player names from both teams. A warning will appear before clearing to prevent accidental data loss.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    Can I analyze multiple trades?
+                </div>
+                <div class="faq-answer">
+                    Yes! After viewing results, click "Analyze New Trade" to modify your player lists and run another comparison without losing your previous entries.
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button class="button primary" onclick="showScreen('input')">Back to Trade Input</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="reset-modal">
+        <div class="modal-content">
+            <h3>⚠️ Warning</h3>
+            <p>This will permanently clear all entered players and won't save your data. This action cannot be undone.</p>
+            <p><strong>You will lose all the time you spent entering player names. Are you sure you want to continue?</strong></p>
+            <div class="modal-buttons">
+                <button class="button reset" onclick="confirmReset()">Yes, Clear All</button>
+                <button class="button primary" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
